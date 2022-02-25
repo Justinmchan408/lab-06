@@ -39,6 +39,7 @@ tidy(full_model)
 ```{r regsubsets, include=TRUE}
 model_select <- regsubsets(SAT ~ Takers + Income + Years + Public + Expend + Rank , data = sat_scores, method = "backward")
 select_summary <- summary(model_select)
+coef(model_select, 1:6)
 select_summary$adjr2
 ```
 
@@ -55,16 +56,36 @@ tidy(model_select_aic)
 ```
 
 4 Compare the final models selected by Adj.R2, AIC, and BIC.
+- Do the models have the same number of predictors?
+- If they don’t have the same number of predictors, which selection criterion resulted in the model with the fewest number of predictors? Is this what you would expect? Briefly explain.
 
+The models do not have the same predictors where the BIC has three predictors and the AIC and Adj.R2 have four predictors based on the models created above. The selection criterion that resulted in the fewest number of parameters is BIC with three predictors. No, this is not what I would expect completely. I would expect AIC and BIC would have fewer predictors since they help determine the best possible model without overpredicting or adding more variables that may add more noise than help by factoring the log likelihood. However, BIC only had the smallest amount predictors based on the smallest BIC value.
 
+### Part II: Model Diagnostics
 
+Let’s choose model_select_aic, the model selected usng AIC, to be our final model. In this part of the lab, we will examine some model diagnostics for this model.
 
+5. Use the augment function to create a data frame that contains model predictiosn and statistics for each observation. Save the data frame, and add a variable called obs_num that contains the observation (row) number. Display the first 5 rows of the new data frame.
 
+```{r data frame, include=TRUE}
+df_model_prediction_statistics <- augment(model_select_aic)
+df_model_prediction_statistics <- df_model_prediction_statistics %>% 
+  mutate(obs_num = row_number())
+head(df_model_prediction_statistics, 5)
+```
 
+6. Let’s examine the leverage for each observation. Based on the lecture notes, what threshold should we use to determine if observations in this dataset have high leverage? Report the value and show the quation you used to calculate it.
 
+The threshold we should use to determine if the observations in this dataset have high leverage if its over 2 times the average leverage for all observations from the lecture. The equation to calculate the threshold:
+$$h_i > 2(p+1)/n > 2(4+1)/50 > 0.2$$
 
+7. Plot the leverage (.hat) vs. the observation number. Add a line on the plot marking the threshold from the previous exercise. Be sure to include an informative title and clearly label the axes. You can use geom_hline to the add the threshold line to the plot.
 
+```{r leverage vs obs num, include=TRUE}
+leverage_threshold <- 2*(4+1)/nrow(df_model_prediction_statistics)
 
-
-
+ggplot(data = df_model_prediction_statistics, aes(x = obs_num, y = .hat)) +
+  geom_point() + 
+  geom_hline(aes(yintercept = leverage_threshold, colour = "red"))
+```
 
