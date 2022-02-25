@@ -1,5 +1,5 @@
 ---
-title: "lab-06"
+title: "lab-06: Model Selection + Diagnostics"
 author: "Justin Chan"
 date: "2/21/2022"
 output: pdf_document
@@ -9,22 +9,62 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Packages
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+Loading required packages for the lab:
+```{r packages, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(knitr)
+library(broom)
+library(leaps)
+library(rms)
+library(Sleuth3)
 ```
 
-## Including Plots
+## Exercises
 
-You can also embed plots, for example:
+### Part I: Model Selection
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+We begin this lab by conducting model selection with various selection criteria to choose a final model from the SAT dataset. The code to load the data and create the full main effects model is shown below. The next few questions will walk you through backward model selection using different model selection criteria to select a model.
+
+```{r dataset, include=TRUE}
+sat_scores <- Sleuth3::case1201
+
+full_model <- lm(SAT ~ Takers + Income + Years + Public + Expend + Rank, data = sat_scores)
+tidy(full_model)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+1. We will use the regsubsets function in the leaps R package to perform backward selection on multiple linear regression models with Adj.R2 or BIC as the selection criteria.
+
+```{r regsubsets, include=TRUE}
+model_select <- regsubsets(SAT ~ Takers + Income + Years + Public + Expend + Rank , data = sat_scores, method = "backward")
+select_summary <- summary(model_select)
+select_summary$adjr2
+```
+
+2. Fill in the code below to display the model selected from backward selection with BIC as the selection criterion.
+```{r bic, include=TRUE}
+select_summary$bic
+```
+
+3. Next, let’s select a model using AIC as the selection criterion. To select a model using AIC, we will use the step function in R. The code below is to conduct backward selection using AIC as the criterion and store the selected model in an object called model_select_aic. Use the tidy function to display the coefficients of the selected model.
+
+```{r aic, include=TRUE}
+model_select_aic <- step(full_model, direction = "backward")
+tidy(model_select_aic)
+```
+
+4 Compare the final models selected by Adj.R2, AIC, and BIC.
+
+
+
+
+
+
+
+
+
+
+
+
+
