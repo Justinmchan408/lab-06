@@ -89,3 +89,60 @@ ggplot(data = df_model_prediction_statistics, aes(x = obs_num, y = .hat)) +
   geom_hline(aes(yintercept = leverage_threshold, colour = "red"))
 ```
 
+8. Which states (if any) in the dataset are considered high leverage? Show the code used to determine the states. Hint: You may need to get State from sat_data.
+
+```{r high leverage states, include=TRUE}
+df_model_prediction_statistics %>% filter(.hat > leverage_threshold) %>% 
+  select(obs_num, Years, Public, Expend, Rank)
+```
+The states in the dataset that are considered high leverage is Louisiana and Alaska which are the rows 22 and 29 in the sat_scores dataset.
+
+9. Next, we will examine the standardized residuals. Plot the standardized residuals (.std.resid) versus the predicted values. Include horizontal lines at y=2 and y=-2 indicating the thresholds used to determine if standardized residuals have a large magnitude. Be sure to include an informative title and clearly label the axes.You can use geom_hline to the add the threshold lines to the plot.
+
+```{r std residuals vs predicted values, include=TRUE}
+ggplot(data = df_model_prediction_statistics, aes(x = .fitted, y = .std.resid)) +
+  geom_point() + 
+  geom_hline(aes(yintercept = 2, colour = "red")) +
+  geom_hline(aes(yintercept = -2, colour = "red")) +
+  labs(title = "Standardized Residuals vs Predicted Values",
+       x = "Predicted Values",
+       y = "Standardized Residuals")
+```
+
+10. Based on our thresholds, which states (if any) are considered to have standardized residuals with large magnitude? Show the code used to determine the states. Hint: You may need to get State from sat_data.
+
+```{r large magnitude filter, include=TRUE}
+df_model_prediction_statistics %>% filter(2 < abs(.std.resid)) %>% 
+  select(obs_num, Years, Public, Expend, Rank)
+```
+
+The states in the dataset that are considered to have standardized residuals with large magnitude are Mississippi, Alaska, and North Carolina which are the rows 16, 29 and 50 in the sat_scores dataset.
+
+11. Let’s determine if any of these states with high leverage and/or high standardized residuals are influential points, i.e. are significantly impacting the coefficients of the model. Plot the Cook’s Distance (.cooksd) vs. the observation number. Add a line on the plot marking the threshold to determine a point is influential. Be sure to include an informative title and clearly label the axes. You can use geom_hline to the add the threshold line to the plot.
+- Which states (if any) are considered to be influential points?
+- If there are influential points, briefly describe strategies to deal with them in your regression analysis.
+
+```{r cooks distance vs obs num, include=TRUE}
+ggplot(data = df_model_prediction_statistics, aes(x = obs_num, y = .cooksd)) +
+  geom_point(alpha = 0.7) + 
+  geom_hline(aes(yintercept = 1, colour = "red")) +
+  labs(title = "Cook's Distance vs Observation Number",
+       x = "Observation Number",
+       y = "Cook's Distance")
+
+df_model_prediction_statistics %>% filter(1 < .cooksd) %>% 
+  select(obs_num, Years, Public, Expend, Rank)
+```
+
+The state in the dataset that are considered to be influential point is Alaska which is row 29 in the sat_scores dataset. One strategy to deal with these influencial points or ways to drop the point based on predictor variables if it is meaningful to drop the observation given the context of the problem, build a model with a smaller range of predictor variables and mention this in the write up. Other strategies to deal with these influential points is transformations or increasing the sample size by collecting more data.
+
+12. Lastly, let’s examine the Variance Inflation Factor (VIF) used to determine if the predictor variables in the model are correlated with each other.
+
+Let’s start by manually calculating VIF for the variable Expend.
+- Begin by fitting a model with Expend as the response variable and the other predictor variables in model_select_aic as the predictors.
+- Calculate R2 for this model.
+- Use this R2 to calculate VIF for Expend.
+- Does Expend appear to be highly correlated with any other predictor variables? Briefly explain.
+
+
+
