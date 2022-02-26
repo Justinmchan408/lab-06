@@ -159,3 +159,9 @@ tidy(vif(model_select_aic))
 
 No, there does not seem an issue of multicollinearity in this model, model_select_aic after using the function vif() from the rms package which has all the VIF explanatory values in the model to be less than 1.43. If any of these VIF values were over 10, then we would most likely have a problem with mutlicollinearity but, there does not seem to be these obvious concerns at this first glance/analysis of the model.
 
+```{r write raw and mod data, include=FALSE}
+write.csv(sat_scores, file = "/Users/chanj4/Desktop/School/STAT108/lab-06/raw_data/sat_scores.csv")
+
+write.csv(df_model_prediction_statistics, file = "/Users/chanj4/Desktop/School/STAT108/lab-06/mod_data/df_model_prediction_statistics.csv")
+```
+
